@@ -167,7 +167,8 @@ def get_current_activity(device_name):
     '''
     activity = 'undefined'
     try:
-        cmd = 'adb -s {} shell dumpsys activity | grep "mFocusedActivity"'.format(device_name)
+        # cmd = 'adb -s {} shell dumpsys activity | grep "mFocusedActivity"'.format(device_name)
+        cmd = 'adb -s {} shell dumpsys activity | grep "mResumedActivity"'.format(device_name)
         activity = str(os.popen(cmd).readlines()).split('/')[1].split()[0]
     except Exception, e:
         logger.error("获取当前activity异常!{}".format(e))

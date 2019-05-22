@@ -4,12 +4,13 @@
 import time,os,sys,subprocess,json
 from tools.filetools import write_file
 from appium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from tools.loggers import JFMlogging
 logger = JFMlogging().getloger()
 from config import logintest_app_log,appium_log
+from time import sleep
 
 
 class AppiumDriver(object):
@@ -103,20 +104,33 @@ class LoginApp():
         self.device_name = device_name
         self.pck_name = pck_name
         self.lanuch_activity = lanuch_activity
-        self.allow = "//*[@text='ALLOW']"
-        self.allow_zn = "//*[@text='允许']"
-        self.sure = "//*[@text='确定']"
-        self.skip = "//*[@text='跳过']"
+        self.allow = "//*[@text='始终允许']"
+        self.phone_login = "com.xunlei.tdlive:id/phone_login"
+        self.xunlei_login = "com.xunlei.tdlive:id/change_login"
+        self.input_name = "com.xunlei.tdlive:id/account_edt"
+        self.input_passwd = "com.xunlei.tdlive:id/password_edt"
+        self.login_button = "com.xunlei.tdlive:id/login_btn"
+        self.ctext = "//*[@text='wxulf1565@163.com']"
 
 
     def is_element_exist(self,driver, *loc):
         try:
-            WebDriverWait(self.driver, 5).until(expected_conditions.visibility_of_element_located(loc))
+            WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located(loc))
             self.driver.find_element(*loc)
             return True
         except Exception as e:
             logger.warning(str(e))
             return False
+
+    def always_allow(self,driver,number=2):
+        logger.info("跳过系统权限")
+        for i in range(number):
+            allow_button = (By.XPATH, self.allow)
+            try:
+                a_button = WebDriverWait(self.driver,1,0.5).until(EC.presence_of_element_located(allow_button))
+                a_button.click()
+            except Exception as e:
+                pass
 
 
     def logcat(self,log_path,delay):
@@ -135,28 +149,29 @@ class LoginApp():
         try:
             self.appium_driver = AppiumDriver(self.device_name, self.pck_name, self.lanuch_activity)
             self.driver = self.appium_driver.start_appium()
-            time.sleep(3)
             self.driver.implicitly_wait(5)
             logger.info("启动app中.....")
-            # if self.driver.find_elements(By.XPATH,self.allow):
-            #     self.driver.find_element(By.XPATH,self.allow).click()
-            # elif self.driver.find_elements(By.XPATH,self.allow_zn):
-            #     self.driver.find_element(By.XPATH,self.allow_zn).click()
-            # elif self.driver.find_elements(By.XPATH,self.sure):
-            #     self.driver.find_element(By.XPATH,self.sure).click()
-            flag = True
-            while flag:
-                if self.driver.find_elements(By.XPATH,self.allow):
-                    self.driver.find_element(By.XPATH,self.allow).click()
-                elif self.driver.find_elements(By.XPATH,self.allow_zn):
-                    self.driver.find_element(By.XPATH,self.allow_zn).click()
-                elif self.driver.find_elements(By.XPATH,self.sure):
-                    self.driver.find_element(By.XPATH,self.sure).click()
-                elif self.driver.find_elements(By.XPATH,self.skip):
-                    self.driver.find_element(By.XPATH,self.skip).click()
-                else:
-                    flag = False
-                    break
+            sleep(5)
+            self.always_allow(self.driver)
+            logger.info("点击手机登录按钮")
+            sleep(5)
+            self.driver.find_element(By.ID, self.phone_login).click()
+            sleep(5)
+            logger.info("切换到迅雷账号登录")
+            sleep(5)
+            self.driver.find_element(By.ID, self.xunlei_login).click()
+            sleep(5)
+            logger.info("输入用户名")
+            # self.driver.find_element(By.ID, self.input_name).click()
+            self.driver.set_value(self.driver.find_element(By.ID, self.input_name),"xxx")
+            logger.info("输入密码")
+            self.driver.find_element(By.ID, self.input_passwd).click()
+            sleep(3)
+            self.driver.set_value(self.driver.find_element(By.ID, self.input_passwd), xxx)
+            logger.info("点击登录按钮")
+            sleep(5)
+            self.driver.find_element(By.ID, self.login_button).click()
+            time.sleep(10)
             login_result = 'success'
             logger.info('登录成功')
         except Exception as e:
