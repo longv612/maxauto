@@ -12,8 +12,8 @@ sys.path.append('..')
 from config import *
 from tools.loggers import JFMlogging
 logger = JFMlogging().getloger()
-from sendmail import SendMail
-from upload import UPLoad
+from sendmail import Sendmail
+# from upload import UPLoad
 from config import report_folder,report_path
 
 def make_env():

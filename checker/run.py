@@ -21,7 +21,7 @@ def kill_pid(port):
     else:
         result = os.popen('lsof -i:{}'.format(gunicorn_port)).readlines()
         for line in result:
-            if 'Python' in line or 'python2.7' in line:
+            if 'python' in line or 'python2.7' in line:
                 pid = line.split()[1]
                 subprocess.call('kill -9 {}'.format(pid),shell=True)
                 logger.info('kill进程{}'.format(pid))
@@ -43,7 +43,7 @@ def run(apk_path,mail_list):
         logger.info("开始生成报告")
         start_gunicorn()
         report_path = get_html(mail_list)
-        response_filepath = UPLoad().upload_local_report(report_path)
+        # response_filepath = UPLoad().upload_local_report(report_path)
         total_size = GetData().get_base()['apksize']
         version = GetData().get_pkg_info()['versionName']
     except Exception as e:
